@@ -20,7 +20,7 @@ class MykmeansClustering:
         '''
         initialize self.model here and execute kmeans clustering here
         '''
-        num_clusters = 4
+        num_clusters = 3
         max_iter = 500
 
         self.model = KMeans(n_clusters = num_clusters, max_iter = max_iter)
