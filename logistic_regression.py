@@ -71,7 +71,6 @@ class MyLogisticRegression:
             y_pred = np.where(y_pred >= 0.5, 1, 0)
             accuracy = accuracy_score(self.y_test, y_pred)
             precision, recall, f1, support = precision_recall_fscore_support(self.y_test, y_pred)
-            print(accuracy)
         
         assert precision.shape == recall.shape == f1.shape == support.shape == (2,), "precision, recall, f1, support should be an array of shape (2,)"
         return [accuracy, precision, recall, f1, support]
@@ -88,7 +87,6 @@ class MyLogisticRegression:
         if self.X_test is not None:
             y_pred = self.model_logistic.predict(self.X_test)
             accuracy = accuracy_score(self.y_test, y_pred)
-            print(accuracy)
             precision, recall, f1, support = precision_recall_fscore_support(self.y_test, y_pred)
             pass
         assert precision.shape == recall.shape == f1.shape == support.shape == (2,), "precision, recall, f1, support should be an array of shape (2,)"
