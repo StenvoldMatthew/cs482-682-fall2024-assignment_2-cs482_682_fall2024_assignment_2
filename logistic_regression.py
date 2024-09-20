@@ -30,22 +30,29 @@ class MyLogisticRegression:
             print("unsupported dataset number")
             
         self.training_set = pd.read_csv(train_dataset_file, sep=',', header=0)
+        self.X_train = self.training_set[['exam_score_1', 'exam_score_2']].values
+        self.y_train = self.training_set['label'].values
+
         if self.perform_test:
             self.test_set = pd.read_csv(test_dataset_file, sep=',', header=0)
+            self.X_test = self.test_set[['exam_score_1', 'exam_score_2']].values
+            self.y_test = self.test_set['label'].values
+
         
         
     def model_fit_linear(self):
         '''
         initialize self.model_linear here and call the fit function
         '''
-        pass
+        self.model_linear = LinearRegression()
+        self.model_linear.fit(self.X_train, self.y_train)
     
     def model_fit_logistic(self):
         '''
         initialize self.model_logistic here and call the fit function
         '''
-
-        pass
+        self.model_logistic = LogisticRegression()
+        self.model_logistic.fit(self.X_train, self.y_train)
     
     def model_predict_linear(self):
         '''
@@ -59,7 +66,10 @@ class MyLogisticRegression:
         
         if self.X_test is not None:
             # perform prediction here
-            pass
+            y_pred = self.model_linear.predict(self.X_test)
+            y_pred = np.where(y_pred >= 0.5, 1, 0)
+            accuracy = accuracy_score(self.y_test, y_pred)
+            precision, recall, f1, support = precision_recall_fscore_support(self.y_test, y_pred)
         
         assert precision.shape == recall.shape == f1.shape == support.shape == (2,), "precision, recall, f1, support should be an array of shape (2,)"
         return [accuracy, precision, recall, f1, support]
@@ -74,7 +84,10 @@ class MyLogisticRegression:
         assert self.model_logistic is not None, "Initialize the model, i.e. instantiate the variable self.model_logistic in model_fit_logistic method"
         assert self.training_set is not None, "self.read_csv function isn't called or the self.trianing_set hasn't been initialized "
         if self.X_test is not None:
-            # perform prediction here
+            y_pred = self.model_logistic.predict(self.X_test)
+            y_pred = np.where(y_pred >= 0.5, 1, 0)
+            accuracy = accuracy_score(self.y_test, y_pred)
+            precision, recall, f1, support = precision_recall_fscore_support(self.y_test, y_pred)
             pass
         
         assert precision.shape == recall.shape == f1.shape == support.shape == (2,), "precision, recall, f1, support should be an array of shape (2,)"
