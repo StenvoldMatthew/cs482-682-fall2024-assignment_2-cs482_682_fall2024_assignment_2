@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 from sklearn.linear_model import LogisticRegression,LinearRegression
 import argparse
 from sklearn.metrics import accuracy_score, precision_recall_fscore_support
@@ -70,6 +71,7 @@ class MyLogisticRegression:
             y_pred = np.where(y_pred >= 0.5, 1, 0)
             accuracy = accuracy_score(self.y_test, y_pred)
             precision, recall, f1, support = precision_recall_fscore_support(self.y_test, y_pred)
+            print(accuracy)
         
         assert precision.shape == recall.shape == f1.shape == support.shape == (2,), "precision, recall, f1, support should be an array of shape (2,)"
         return [accuracy, precision, recall, f1, support]
@@ -85,13 +87,46 @@ class MyLogisticRegression:
         assert self.training_set is not None, "self.read_csv function isn't called or the self.trianing_set hasn't been initialized "
         if self.X_test is not None:
             y_pred = self.model_logistic.predict(self.X_test)
-            y_pred = np.where(y_pred >= 0.5, 1, 0)
             accuracy = accuracy_score(self.y_test, y_pred)
+            print(accuracy)
             precision, recall, f1, support = precision_recall_fscore_support(self.y_test, y_pred)
             pass
-        
         assert precision.shape == recall.shape == f1.shape == support.shape == (2,), "precision, recall, f1, support should be an array of shape (2,)"
         return [accuracy, precision, recall, f1, support]
+    
+    def modelPlot(self):
+        x_min, x_max = self.X_test[:, 0].min() - 1, self.X_test[:, 0].max() + 1
+        y_min, y_max = self.X_test[:, 1].min() - 1, self.X_test[:, 1].max() + 1
+        xx, yy = np.meshgrid(np.arange(x_min, x_max, 0.01), np.arange(y_min, y_max, 0.01))
+
+        # Create subplots
+        fig, axs = plt.subplots(1, 2, figsize=(12, 6))
+
+        # Predict using the linear model for the entire grid
+        Z1 = self.model_linear.predict(np.c_[xx.ravel(), yy.ravel()])
+        Z1 = Z1.reshape(xx.shape)
+
+        # Plot the decision boundary for linear regression
+        axs[0].contourf(xx, yy, Z1, alpha=0.8, cmap=plt.cm.coolwarm)
+        axs[0].scatter(self.X_test[:, 0], self.X_test[:, 1], c=self.y_test, edgecolors='k', marker='o', s=20, cmap=plt.cm.coolwarm)
+        axs[0].set_title("Decision Boundary for Linear Regression")
+        axs[0].set_xlabel("Exam Score 1")
+        axs[0].set_ylabel("Exam Score 2")
+
+        # Predict using the logistic model for the entire grid
+        Z2 = self.model_logistic.predict(np.c_[xx.ravel(), yy.ravel()])
+        Z2 = Z2.reshape(xx.shape)
+
+        # Plot the decision boundary for logistic regression
+        axs[1].contourf(xx, yy, Z2, alpha=0.8, cmap=plt.cm.coolwarm)
+        axs[1].scatter(self.X_test[:, 0], self.X_test[:, 1], c=self.y_test, edgecolors='k', marker='o', s=20, cmap=plt.cm.coolwarm)
+        axs[1].set_title("Decision Boundary for Logistic Regression")
+        axs[1].set_xlabel("Exam Score 1")
+        axs[1].set_ylabel("Exam Score 2")
+
+        # Adjust layout and show the plot
+        plt.tight_layout()
+        plt.show()
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Linear Regression')
@@ -99,6 +134,18 @@ if __name__ == '__main__':
     parser.add_argument('-t','--perform_test', action='store_true', help='boolean to indicate inference')
     args = parser.parse_args()
     classifier = MyLogisticRegression(args.dataset_num, args.perform_test)
+
+    # command prompt must set perorm_test in order for these to display anything besides 0
     acc = classifier.model_predict_linear()
+    print("Accuracy: {:.4f}".format(acc[0]))
+    print("Linear class 0 | p r f1 sup = {:.2f}, {:.2f}, {:.2f}, {:.2f}".format(acc[1][0], acc[2][0], acc[3][0], acc[4][0]))
+    print("Linear class 1 | p r f1 sup = {:.2f}, {:.2f}, {:.2f}, {:.2f}".format(acc[1][1], acc[2][1], acc[3][1], acc[4][1]))
+    print("------")
+    
     acc = classifier.model_predict_logistic()
+    print("Accuracy: {:.4f}".format(acc[0]))
+    print("Logistic class 0 | p r f1 sup = {:.2f}, {:.2f}, {:.2f}, {:.2f}".format(acc[1][0], acc[2][0], acc[3][0], acc[4][0]))
+    print("Logistic class 1 | p r f1 sup = {:.2f}, {:.2f}, {:.2f}, {:.2f}".format(acc[1][1], acc[2][1], acc[3][1], acc[4][1]))
+    classifier.modelPlot()
+    
     
